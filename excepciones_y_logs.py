@@ -1,3 +1,4 @@
+excepciones_y_logs.py
 from datetime import datetime  # Importa datetime para marcar la fecha y hora exacta de cada evento o error
 from pathlib import Path  # Importa Path para manejar rutas de carpetas y archivos de forma segura
 
