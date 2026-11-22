@@ -1,0 +1,47 @@
+from datetime import datetime  # Importa datetime para marcar la fecha y hora exacta de cada evento o error
+from pathlib import Path  # Importa Path para manejar rutas de carpetas y archivos de forma segura
+
+class ErrorSoftwareFJ(Exception):  # Define la clase base para todas las excepciones personalizadas del sistema
+    """Excepción base del sistema de gestión de Software FJ."""  # Documenta el propósito de la excepción base
+
+    def __init__(self, mensaje: str, codigo: str = "ERR_GENERAL"):  # Recibe el mensaje y un código de error opcional
+        super().__init__(f"[{codigo}] {mensaje}")  # Envía el mensaje formateado al constructor de Exception
+        self.mensaje = mensaje  # Guarda el mensaje limpio del error
+        self.codigo = codigo  # Guarda el código identificador del error
+
+class ErrorValidacionDato(ErrorSoftwareFJ):  # Excepción para datos inválidos o parámetros faltantes
+    """Se lanza cuando un dato es inválido o falta un parámetro obligatorio."""  # Describe cuándo ocurre este error
+
+    def __init__(self, mensaje: str):  # Recibe el detalle de la validación fallida
+        super().__init__(mensaje, codigo="ERR_VALIDACION")  # Asigna el código específico ERR_VALIDACION
+
+class ErrorArchivoNoEncontrado(ErrorSoftwareFJ):  # Excepción para archivos que no se encuentran
+    """Se lanza cuando un archivo requerido no se encuentra en la ruta especificada."""  # Describe el error
+
+    def __init__(self, ruta: Path):  # Recibe la ruta del archivo que no se encontró 
+        mensaje = f"Archivo no encontrado: {ruta}"  # Crea un mensaje detallado con la ruta
+        super().__init__(mensaje, codigo="ERR_ARCHIVO_NO_ENCONTRADO")  # Asigna el código específico ERR_ARCHIVO_NO_ENCONTRADO
+
+class ErrorCalculoCosto(ErrorSoftwareFJ):  # Excepción para cálculos inconsistentes o valores negativos en costos
+    """Se lanza cuando hay inconsistencias en tarifas, descuentos, impuestos o duraciones."""  # Describe su propósito
+
+    def __init__(self, mensaje: str):  # Recibe el detalle del fallo en el cálculo
+        super().__init__(mensaje, codigo="ERR_CALCULO")  # Asigna el código específico ERR_CALCULO
+
+class RegistradorLogs:  # Clase encargada de escribir eventos y errores en el archivo de logs
+    """Gestiona el registro de eventos y errores en un archivo de texto plano (.log)."""  # Documenta la clase
+
+    def __init__(self, ruta_archivo: str = "registro_software_fj.log"):  # Define la ruta del archivo de logs
+        self.ruta_archivo = Path(ruta_archivo)  # Convierte la ruta en un objeto Path para manipularla fácilmente
+
+    def registrar(self, nivel: str, mensaje: str, detalle_extra: str = "") -> None:  # Escribe una línea en el log
+        marca_tiempo = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Obtiene la fecha y hora actual formateada
+        linea = f"{marca_tiempo} | {nivel.upper()} | {mensaje}"  # Construye la línea principal del registro
+
+         if detalle_extra:  # Si hay detalles adicionales, los agrega al final de la línea
+            linea += f" | Detalle: {detalle_extra}"  # Añade el detalle extra al registro
+        linea += "\n"  # Añade un salto de línea al final para que cada registro ocupe una fila
+
+        # Abre el archivo en modo 'a' (append) para agregar registros sin borrar los anteriores
+        with self.ruta_archivo.open(mode="a", encoding="utf-8") as archivo_log:  # Cierra el archivo automáticamente
+            archivo_log.write(linea)  # Escribe la línea formateada dentro del archivo de logs
